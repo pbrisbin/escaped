@@ -10,23 +10,23 @@ import qualified Data.Text.IO as T
 
 main :: IO ()
 main = do
-    forM_ simpleColors $ \(fg, bg) -> do
-        let label = T.pack $ show fg <> " on " <> show bg
+    forM_ simpleColors $ \(f, b) -> do
+        let label = T.pack $ show f <> " on " <> show b
 
         T.putStrLn $ render $
             "This text is "
-            <> FG fg
-            <> BG bg
+            <> FG f
+            <> BG b
             <> Plain label
             <> Reset
             <> "."
 
-    forM_ simpleEscapes $ \esc -> do
-        let label = T.pack $ show esc
+    forM_ simpleEscapes $ \e -> do
+        let label = T.pack $ show e
 
         T.putStrLn $ render $
             "This text is "
-            <> esc
+            <> e
             <> Plain label
             <> Reset
             <> "."
