@@ -1,20 +1,4 @@
 {-# LANGUAGE OverloadedStrings #-}
--- |
---
--- Construct and render terminal-escaped @'Text'@ values.
---
--- > {-# LANGUAGE OverloadedStrings #-}
--- > module Main where
--- >
--- > import Data.Text.Escaped
--- >
--- > import qualified Data.Text.IO as T
--- >
--- > main :: IO ()
--- > main = T.putStrLn
--- >     $ render
--- >     $ "This text is " <> FG Red <> "Red" <> Reset <> "."
---
 module Data.Text.Escaped
     ( Color(..)
     , Escaped(..)
