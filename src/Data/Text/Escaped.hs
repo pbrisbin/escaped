@@ -65,6 +65,7 @@ data Escaped
     | FG Color
     | BG Color
     | Many [Escaped]
+    deriving Show
 
 instance IsString Escaped where
     fromString = Plain . T.pack

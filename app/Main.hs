@@ -21,6 +21,16 @@ main = do
             <> Reset
             <> "."
 
+    forM_ simpleEscapes $ \esc -> do
+        let label = T.pack $ show esc
+
+        T.putStrLn $ render $
+            "This text is "
+            <> esc
+            <> Plain label
+            <> Reset
+            <> "."
+
     forM_ [0..255] $ \n -> do
         let label = Plain $ T.center 5 ' ' $ T.pack $ show n
             escaped = render $ FG White <> BG (Custom n) <> label <> Reset
@@ -47,4 +57,14 @@ simpleColors =
     , (Yellow, Default)
     , (White, Black)
     , (Black, White)
+    ]
+
+simpleEscapes :: [Escaped]
+simpleEscapes =
+    [ Bold
+    , Dim
+    , Underlined
+    , Blink
+    , Reverse
+    , Hidden
     ]
