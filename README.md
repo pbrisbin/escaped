@@ -35,19 +35,27 @@ Note: this function composes `Escaped`s, so you can nest:
 
 ### The `Escaped` Type
 
+Behind those helpers, a convenient `Monoid` instance, and the
+`OverLoadedStrings` extension, what you're actually doing is building up a value
+of type `Escaped`:
+
+```console
+λ> :set -XOverloadedStrings
+λ> "one" <> red "red" <> "three"
+Many [Plain "one",FG Red,Plain "red",Reset,Plain "three"]
+λ> render it
+"one\ESC[31mred\ESC[0mthree"
+```
+
 The `Escaped` type has constructors for the various shell escapes and is meant
 to be used directly for non-trivial cases.
-
 
 ```hs
 "This is " <> Blink <> FG Red <> "blinking red" <> Reset <> " text."
 ```
 
-### Using `OverLoadedStrings`
-
-The literal `"text"` values in the above examples are equivalent to `Plain
-"text"` through the `OverloadedStrings` extension. If you need to interpolate
-*non-literals* of type `Text`, don't forget the constructor:
+If you need to interpolate *non-literals* of type `Text`, use the `Plain`
+constructor:
 
 ```hs
 logMessage :: Level -> Text -> Escaped
