@@ -35,7 +35,7 @@ main = do
         let label = Plain $ T.center 5 ' ' $ T.pack $ show n
             escaped = render $ FG White <> BG (Custom n) <> label <> Reset
 
-        if ((n + 1) `mod` 8 == 0)
+        if (n + 1) `mod` 8 == 0
             then T.putStrLn escaped
             else T.putStr escaped
 
