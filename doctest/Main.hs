@@ -1,9 +1,6 @@
 module Main (main) where
 
-import           Test.DocTest
+import Test.DocTest
 
 main :: IO ()
-main = doctest
-    [ "-XOverloadedStrings"
-    , "src"
-    ]
+main = doctest ["-XOverloadedStrings", "src"]
