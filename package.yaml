@@ -24,7 +24,7 @@ library:
     - unix
 
 executables:
-  escaped:
+  escaped-example:
     main: Main.hs
     source-dirs: app
     ghc-options:
@@ -36,7 +36,7 @@ executables:
       - text
 
 tests:
-  escaped-test:
+  hspec:
     main: Spec.hs
     source-dirs: test
     ghc-options:
@@ -48,13 +48,12 @@ tests:
       - escaped
       - hspec
 
-  escaped-doctest:
-    main: DocTest.hs
-    source-dirs: test
+  doctest:
+    main: Main.hs
+    source-dirs: doctest
     ghc-options:
       - -threaded
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
-      - Glob
       - doctest
