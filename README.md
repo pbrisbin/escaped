@@ -2,10 +2,6 @@
 
 Produce `Text` with terminal escape sequences.
 
-## Installation
-
-*TODO*: Unreleased as of yet.
-
 ## Usage
 
 ### Quick Start
@@ -35,9 +31,8 @@ Note: this function composes `Escaped`s, so you can nest:
 
 ### The `Escaped` Type
 
-Behind those helpers, a convenient `Monoid` instance, and the
-`OverLoadedStrings` extension, what you're actually doing is building up a value
-of type `Escaped`:
+Behind those helpers, a `Semigroup` instance, and the `OverLoadedStrings`
+extension, what you're actually doing is building up a value of type `Escaped`:
 
 ```console
 λ> :set -XOverloadedStrings
