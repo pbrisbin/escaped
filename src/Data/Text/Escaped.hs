@@ -27,13 +27,13 @@ module Data.Text.Escaped
     , terminalRenderer
     ) where
 
-import Data.Monoid ((<>))
+import Data.Monoid (Monoid(..))
+import Data.Semigroup (Semigroup(..))
 import Data.String (IsString(..))
 import Data.Text (Text)
+import qualified Data.Text as T
 import System.Posix.IO (stdOutput)
 import System.Posix.Terminal (queryTerminal)
-
-import qualified Data.Text as T
 
 -- | Supported colors
 data Color
@@ -75,12 +75,15 @@ data Escaped
 instance IsString Escaped where
     fromString = Plain . T.pack
 
+instance Semigroup Escaped where
+    (Many a) <> (Many b) = Many $ a ++ b
+    (Many a) <> b = Many $ a ++ [b]
+    a <> (Many b) = Many $ a:b
+    a <> b = Many [a, b]
+
 instance Monoid Escaped where
     mempty = Plain ""
-    mappend (Many a) (Many b) = Many $ a ++ b
-    mappend (Many a) b = Many $ a ++ [b]
-    mappend a (Many b) = Many $ a:b
-    mappend a b = Many [a, b]
+    mappend = (<>)
 
 -- | Render an @'Escaped'@ to actually-escaped @'Text'@
 --
