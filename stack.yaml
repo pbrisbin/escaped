@@ -1,2 +1,5 @@
 ---
 resolver: lts-11.6
+extra-deps:
+  - git: https://github.com/pbrisbin/hs-cc-coverage
+    commit: 54dbdf46632aa08e1ebc659baa492e7366b00f4b
