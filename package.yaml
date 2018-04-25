@@ -1,0 +1,60 @@
+---
+name: escaped
+version: '0.1.0.0'
+category: Text
+author: Patrick Brisbin
+maintainer: pbrisbin@gmail.com
+copyright: 2018 Patrick Brisbin
+license: MIT
+github: pbrisbin/escaped
+
+extra-source-files:
+  - CHANGELOG.md
+  - README.md
+
+dependencies:
+  - base >= 4.7 && < 5
+
+ghc-options: -Wall
+
+library:
+  source-dirs: src
+  dependencies:
+    - text
+    - unix
+
+executables:
+  escaped:
+    main: Main.hs
+    source-dirs: app
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - escaped
+      - text
+
+tests:
+  escaped-test:
+    main: Spec.hs
+    source-dirs: test
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - QuickCheck
+      - escaped
+      - hspec
+
+  escaped-doctest:
+    main: DocTest.hs
+    source-dirs: test
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - Glob
+      - doctest
