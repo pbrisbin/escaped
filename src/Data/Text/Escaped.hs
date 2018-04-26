@@ -1,7 +1,18 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Data.Text.Escaped
-    ( Color(..)
-    , Escaped(..)
+    ( Escaped
+        ( Plain
+        , Reset
+        , Bold
+        , Dim
+        , Underlined
+        , Blink
+        , Reverse
+        , Hidden
+        , FG
+        , BG
+        )
+    , Color(..)
     , black
     , blue
     , cyan
@@ -27,13 +38,14 @@ module Data.Text.Escaped
     , terminalRenderer
     ) where
 
-import Data.Monoid (Monoid(..))
 import Data.Semigroup (Semigroup(..))
 import Data.String (IsString(..))
 import Data.Text (Text)
 import qualified Data.Text as T
 import System.Posix.IO (stdOutput)
 import System.Posix.Terminal (queryTerminal)
+import Test.QuickCheck
+import Test.QuickCheck.Instances.Text ()
 
 -- | Supported colors
 data Color
@@ -57,6 +69,29 @@ data Color
     | Yellow
     deriving (Eq, Show)
 
+instance Arbitrary Color where
+    -- Too bad @Custom@ makes arbitraryBoundedEnum not useful
+    arbitrary = oneof
+        [ pure Default
+        , Custom <$> arbitrary
+        , pure Black
+        , pure Blue
+        , pure Cyan
+        , pure DarkGray
+        , pure Green
+        , pure LightBlue
+        , pure LightCyan
+        , pure LightGray
+        , pure LightGreen
+        , pure LightMagenta
+        , pure LightRed
+        , pure LightYellow
+        , pure Magenta
+        , pure Red
+        , pure White
+        , pure Yellow
+        ]
+
 -- | Bits of escaped text
 data Escaped
     = Plain Text
@@ -72,12 +107,35 @@ data Escaped
     | Many [Escaped]
     deriving (Eq, Show)
 
+instance Arbitrary Escaped where
+    -- Avoid invalid Many-of-Many nesting, which triggers an infinite loop. Such
+    -- a value is impossible to construct because we don't export the Many
+    -- constructor.
+    arbitrary = oneof $ chunks <> [Many <$> listOf1 (oneof chunks)]
+      where
+        chunks =
+            [ Plain <$> arbitrary
+            , pure Reset
+            , pure Bold
+            , pure Dim
+            , pure Underlined
+            , pure Blink
+            , pure Reverse
+            , pure Hidden
+            , FG <$> arbitrary
+            , BG <$> arbitrary
+            ]
+
 instance IsString Escaped where
     fromString = Plain . T.pack
 
 instance Semigroup Escaped where
-    (Many a) <> (Many b) = Many $ a ++ b
-    (Many a) <> b = Many $ a ++ [b]
+    -- A bit explicit, but ensures identity works
+    x <> (Plain t) | T.null t = x
+    (Plain t) <> y | T.null t = y
+
+    (Many a) <> (Many b) = Many $ a <> b
+    (Many a) <> b = Many $ a <> [b]
     a <> (Many b) = Many $ a:b
     a <> b = Many [a, b]
 

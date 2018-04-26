@@ -1,11 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Main where
+module Main (main) where
 
 import Control.Monad (forM_)
-import Data.Monoid ((<>))
-import Data.Text.Escaped
-
+import Data.Semigroup ((<>))
 import qualified Data.Text as T
+import Data.Text.Escaped
 import qualified Data.Text.IO as T
 
 main :: IO ()

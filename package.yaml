@@ -20,6 +20,8 @@ ghc-options: -Wall
 library:
   source-dirs: src
   dependencies:
+    - QuickCheck
+    - quickcheck-instances
     - text
     - unix
 
@@ -44,8 +46,10 @@ tests:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
+      - QuickCheck
       - escaped
       - hspec
+      - quickcheck-properties
 
   doctest:
     main: Main.hs
