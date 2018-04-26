@@ -1,15 +1,24 @@
 {-# LANGUAGE OverloadedStrings #-}
+
 module Data.Text.EscapedSpec
     ( spec
     ) where
 
 import Control.Monad (forM_)
-import Data.Monoid ((<>))
+import Data.Semigroup ((<>))
 import Data.Text.Escaped
 import Test.Hspec
+import Test.QuickCheck
+import Test.QuickCheck.Property.Monoid
+
+-- brittany-disable-next-binding
 
 spec :: Spec
 spec = do
+    describe "Escaped" $ do
+        it "is a Monoid" $ property
+            $ eq $ prop_Monoid (T :: T Escaped)
+
     describe "visibleLength" $ do
         it "calculates the visible length of escaped text" $ do
             let l1 = visibleLength "Some text."
@@ -38,4 +47,4 @@ spec = do
             , (yellow, Yellow)
             ]
             $ \(h, c) -> it ("uses the correct color for " <> show c) $
-                h "" `shouldBe` Many [FG c, Plain "", Reset]
+                h "hi" `shouldBe` FG c <> Plain "hi" <> Reset
