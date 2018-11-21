@@ -12,8 +12,9 @@ main = do
     forM_ simpleColors $ \(f, b) -> do
         let label = T.pack $ show f <> " on " <> show b
 
-        T.putStrLn $ render $
-            "This text is "
+        T.putStrLn
+            $ render
+            $ "This text is "
             <> FG f
             <> BG b
             <> Plain label
@@ -23,20 +24,19 @@ main = do
     forM_ simpleEscapes $ \e -> do
         let label = T.pack $ show e
 
-        T.putStrLn $ render $
-            "This text is "
+        T.putStrLn
+            $ render
+            $ "This text is "
             <> e
             <> Plain label
             <> Reset
             <> "."
 
-    forM_ [0..255] $ \n -> do
+    forM_ [0 .. 255] $ \n -> do
         let label = Plain $ T.center 5 ' ' $ T.pack $ show n
             escaped = render $ FG White <> BG (Custom n) <> label <> Reset
 
-        if (n + 1) `mod` 8 == 0
-            then T.putStrLn escaped
-            else T.putStr escaped
+        if (n + 1) `mod` 8 == 0 then T.putStrLn escaped else T.putStr escaped
 
 simpleColors :: [(Color, Color)]
 simpleColors =
@@ -59,11 +59,4 @@ simpleColors =
     ]
 
 simpleEscapes :: [Escaped]
-simpleEscapes =
-    [ Bold
-    , Dim
-    , Underlined
-    , Blink
-    , Reverse
-    , Hidden
-    ]
+simpleEscapes = [Bold, Dim, Underlined, Blink, Reverse, Hidden]
