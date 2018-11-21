@@ -10,7 +10,7 @@ Produce `Text` with terminal escape sequences.
 {-# LANGUAGE OverloadedStrings #-}
 module Main where
 
-import Data.Monoid ((<>))
+import Data.Semigroup ((<>))
 import Data.Text.Escaped
 import qualified Data.Text.IO as T
 
@@ -18,12 +18,19 @@ main :: IO ()
 main = T.putStrLn $ render $ "This is " <> red "red" <> " text."
 ```
 
+### Example
+
+Running the example executable will produce everything this library currently
+supports:
+
+![Example](./example.png)
+
 ### Helper Functions
 
 The above uses the `red` helper function, which prefixes the given value with
 the (foreground) color red, then resets after.
 
-Note: this function composes `Escaped`s, so you can nest:
+**NOTE**: this function composes `Escaped`s, so you can nest:
 
 ```hs
 "This is " <> red (bg Blue "red on blue") <> " text."
@@ -83,6 +90,8 @@ main = do
 stack setup
 stack build --pedantic test
 ```
+
+See also the [`Makefile`](./Makefile).
 
 ---
 
