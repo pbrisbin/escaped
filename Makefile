@@ -15,7 +15,7 @@ setup.lint:
 setup.coverage:
 	stack install $(STACK_ARGUMENTS) \
 	  --copy-compiler-tool cc-coverage
-	curl -L -O cc-test-reporter \
+	curl -L -o cc-test-reporter \
 	  https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
 	chmod +x ./cc-test-reporter
 
