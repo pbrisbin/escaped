@@ -1,3 +1,4 @@
 *.cabal
 *.tix
 .stack-work
+cc-test-reporter
