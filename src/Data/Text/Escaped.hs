@@ -1,47 +1,47 @@
-{-# LANGUAGE OverloadedStrings #-}
 module Data.Text.Escaped
-    ( Escaped
-        ( Plain
-        , Reset
-        , Bold
-        , Dim
-        , Underlined
-        , Blink
-        , Reverse
-        , Hidden
-        , FG
-        , BG
-        )
-    , Color(..)
-    , black
-    , blue
-    , cyan
-    , darkGray
-    , green
-    , lightBlue
-    , lightCyan
-    , lightGray
-    , lightGreen
-    , lightMagenta
-    , lightRed
-    , lightYellow
-    , magenta
-    , red
-    , white
-    , yellow
-    , fg
-    , bg
-    , esc
-    , render
-    , plain
-    , visibleLength
-    , terminalRenderer
-    ) where
+  ( Escaped
+      ( Plain
+      , Reset
+      , Bold
+      , Dim
+      , Underlined
+      , Blink
+      , Reverse
+      , Hidden
+      , FG
+      , BG
+      )
+  , Color (..)
+  , black
+  , blue
+  , cyan
+  , darkGray
+  , green
+  , lightBlue
+  , lightCyan
+  , lightGray
+  , lightGreen
+  , lightMagenta
+  , lightRed
+  , lightYellow
+  , magenta
+  , red
+  , white
+  , yellow
+  , fg
+  , bg
+  , esc
+  , render
+  , plain
+  , visibleLength
+  , terminalRenderer
+  ) where
 
-import Data.Semigroup (Semigroup(..))
-import Data.String (IsString(..))
-import Data.Text (Text)
-import qualified Data.Text as T
+import Prelude
+
+import Data.String (IsString (..))
+import Data.Text (Text, pack)
+import Data.Text qualified as T
 import System.Posix.IO (stdOutput)
 import System.Posix.Terminal (queryTerminal)
 import Test.QuickCheck
@@ -49,99 +49,99 @@ import Test.QuickCheck.Instances.Text ()
 
 -- | Supported colors
 data Color
-    = Default
-    | Custom Int
-    | Black
-    | Blue
-    | Cyan
-    | DarkGray
-    | Green
-    | LightBlue
-    | LightCyan
-    | LightGray
-    | LightGreen
-    | LightMagenta
-    | LightRed
-    | LightYellow
-    | Magenta
-    | Red
-    | White
-    | Yellow
-    deriving (Eq, Show)
+  = Default
+  | Custom Int
+  | Black
+  | Blue
+  | Cyan
+  | DarkGray
+  | Green
+  | LightBlue
+  | LightCyan
+  | LightGray
+  | LightGreen
+  | LightMagenta
+  | LightRed
+  | LightYellow
+  | Magenta
+  | Red
+  | White
+  | Yellow
+  deriving stock (Eq, Show)
 
 instance Arbitrary Color where
-    -- Too bad @Custom@ makes arbitraryBoundedEnum not useful
-    arbitrary = oneof
-        [ pure Default
-        , Custom <$> arbitrary
-        , pure Black
-        , pure Blue
-        , pure Cyan
-        , pure DarkGray
-        , pure Green
-        , pure LightBlue
-        , pure LightCyan
-        , pure LightGray
-        , pure LightGreen
-        , pure LightMagenta
-        , pure LightRed
-        , pure LightYellow
-        , pure Magenta
-        , pure Red
-        , pure White
-        , pure Yellow
-        ]
+  -- Too bad @Custom@ makes arbitraryBoundedEnum not useful
+  arbitrary =
+    oneof
+      [ pure Default
+      , Custom <$> arbitrary
+      , pure Black
+      , pure Blue
+      , pure Cyan
+      , pure DarkGray
+      , pure Green
+      , pure LightBlue
+      , pure LightCyan
+      , pure LightGray
+      , pure LightGreen
+      , pure LightMagenta
+      , pure LightRed
+      , pure LightYellow
+      , pure Magenta
+      , pure Red
+      , pure White
+      , pure Yellow
+      ]
 
 -- | Bits of escaped text
 data Escaped
-    = Plain Text
-    | Reset
-    | Bold
-    | Dim
-    | Underlined
-    | Blink
-    | Reverse
-    | Hidden
-    | FG Color
-    | BG Color
-    | Many [Escaped]
-    deriving (Eq, Show)
+  = Plain Text
+  | Reset
+  | Bold
+  | Dim
+  | Underlined
+  | Blink
+  | Reverse
+  | Hidden
+  | FG Color
+  | BG Color
+  | Many [Escaped]
+  deriving stock (Eq, Show)
 
 instance Arbitrary Escaped where
-    -- Avoid invalid Many-of-Many nesting, which triggers an infinite loop. Such
-    -- a value is impossible to construct because we don't export the Many
-    -- constructor.
-    arbitrary = oneof $ chunks <> [Many <$> listOf1 (oneof chunks)]
-      where
-        chunks =
-            [ Plain <$> arbitrary
-            , pure Reset
-            , pure Bold
-            , pure Dim
-            , pure Underlined
-            , pure Blink
-            , pure Reverse
-            , pure Hidden
-            , FG <$> arbitrary
-            , BG <$> arbitrary
-            ]
+  -- Avoid invalid Many-of-Many nesting, which triggers an infinite loop. Such
+  -- a value is impossible to construct because we don't export the Many
+  -- constructor.
+  arbitrary = oneof $ chunks <> [Many <$> listOf1 (oneof chunks)]
+   where
+    chunks =
+      [ Plain <$> arbitrary
+      , pure Reset
+      , pure Bold
+      , pure Dim
+      , pure Underlined
+      , pure Blink
+      , pure Reverse
+      , pure Hidden
+      , FG <$> arbitrary
+      , BG <$> arbitrary
+      ]
 
 instance IsString Escaped where
-    fromString = Plain . T.pack
+  fromString = Plain . pack
 
 instance Semigroup Escaped where
-    -- A bit explicit, but ensures identity works
-    x <> (Plain t) | T.null t = x
-    (Plain t) <> y | T.null t = y
-
-    (Many a) <> (Many b) = Many $ a <> b
-    (Many a) <> b = Many $ a <> [b]
-    a <> (Many b) = Many $ a:b
-    a <> b = Many [a, b]
+  -- A bit explicit, but ensures identity works
+  x <> (Plain t) | T.null t = x
+  (Plain t) <> y | T.null t = y
+  (Many a) <> (Many b) = Many $ a <> b
+  (Many a) <> b = Many $ a <> [b]
+  a <> (Many b) = Many $ a : b
+  a <> b = Many [a, b]
 
 instance Monoid Escaped where
-    mempty = Plain ""
-    mappend = (<>)
+  mempty = Plain ""
+  mappend = (<>)
 
 -- | Render an @'Escaped'@ to actually-escaped @'Text'@
 --
@@ -161,19 +161,19 @@ instance Monoid Escaped where
 --
 -- >>> render $ "Some " <> fg (Custom 212) "color 212" <> " text."
 -- "Some \ESC[38;5;212mcolor 212\ESC[0m text."
---
 render :: Escaped -> Text
-render (Plain t) = t
-render (Many es) = T.concat $ map render es
-render Reset = "\ESC[0m"
-render Bold = "\ESC[1m"
-render Dim = "\ESC[2m"
-render Underlined = "\ESC[3m"
-render Blink = "\ESC[5m"
-render Reverse = "\ESC[7m"
-render Hidden = "\ESC[8m"
-render (FG c) = "\ESC[" <> fgColorCode c <> "m"
-render (BG c) = "\ESC[" <> bgColorCode c <> "m"
+render = \case
+  Plain t -> t
+  Many es -> mconcat $ map render es
+  Reset -> "\ESC[0m"
+  Bold -> "\ESC[1m"
+  Dim -> "\ESC[2m"
+  Underlined -> "\ESC[3m"
+  Blink -> "\ESC[5m"
+  Reverse -> "\ESC[7m"
+  Hidden -> "\ESC[8m"
+  FG c -> "\ESC[" <> fgColorCode c <> "m"
+  BG c -> "\ESC[" <> bgColorCode c <> "m"
 
 -- | Render only the @'Text'@ parts
 --
@@ -184,11 +184,11 @@ render (BG c) = "\ESC[" <> bgColorCode c <> "m"
 --
 -- >>> plain $ "Some " <> FG Red <> "red" <> Reset <> " text."
 -- "Some red text."
---
 plain :: Escaped -> Text
-plain (Plain t) = t
-plain (Many es) = T.concat $ map plain es
-plain _ = ""
+plain = \case
+  Plain t -> t
+  Many es -> mconcat $ map plain es
+  _ -> ""
 
 black :: Escaped -> Escaped
 black = fg Black
@@ -242,7 +242,6 @@ yellow = fg Yellow
 --
 -- >>> fg Red "red"
 -- Many [FG Red,Plain "red",Reset]
---
 fg :: Color -> Escaped -> Escaped
 fg = esc . FG
 
@@ -250,7 +249,6 @@ fg = esc . FG
 --
 -- >>> bg Red "red"
 -- Many [BG Red,Plain "red",Reset]
---
 bg :: Color -> Escaped -> Escaped
 bg = esc . BG
 
@@ -258,15 +256,15 @@ bg = esc . BG
 --
 -- >>> esc (FG Red) "red"
 -- Many [FG Red,Plain "red",Reset]
---
 esc :: Escaped -> Escaped -> Escaped
 esc a b = a <> b <> Reset
 
 -- | Calculate the /visible/ length of an @'Escaped'@
 visibleLength :: Escaped -> Int
-visibleLength (Plain t) = T.length t
-visibleLength (Many es) = sum $ map visibleLength es
-visibleLength _ = 0
+visibleLength = \case
+  Plain t -> T.length t
+  Many es -> sum $ map visibleLength es
+  _ -> 0
 
 -- | An @'IO'@ action to produce the appropriate renderer for a terminal
 --
@@ -275,48 +273,49 @@ visibleLength _ = 0
 -- >>> r <- terminalRenderer
 -- >>> print $ r $ red "red text"
 -- "red text"
---
 terminalRenderer :: IO (Escaped -> Text)
 terminalRenderer = do
-    istty <- queryTerminal stdOutput
-    return $ if istty then render else plain
+  istty <- queryTerminal stdOutput
+  return $ if istty then render else plain
 
 fgColorCode :: Color -> Text
-fgColorCode Default = "39"
-fgColorCode (Custom n) = "38;5;" <> T.pack (show n)
-fgColorCode Black = "30"
-fgColorCode Blue = "34"
-fgColorCode Cyan = "36"
-fgColorCode DarkGray = "90"
-fgColorCode Green = "32"
-fgColorCode LightBlue = "94"
-fgColorCode LightCyan = "96"
-fgColorCode LightGray = "37"
-fgColorCode LightGreen = "92"
-fgColorCode LightMagenta = "95"
-fgColorCode LightRed = "91"
-fgColorCode LightYellow = "93"
-fgColorCode Magenta = "35"
-fgColorCode Red = "31"
-fgColorCode White = "97"
-fgColorCode Yellow = "33"
+fgColorCode = \case
+  Default -> "39"
+  Custom n -> "38;5;" <> pack (show n)
+  Black -> "30"
+  Blue -> "34"
+  Cyan -> "36"
+  DarkGray -> "90"
+  Green -> "32"
+  LightBlue -> "94"
+  LightCyan -> "96"
+  LightGray -> "37"
+  LightGreen -> "92"
+  LightMagenta -> "95"
+  LightRed -> "91"
+  LightYellow -> "93"
+  Magenta -> "35"
+  Red -> "31"
+  White -> "97"
+  Yellow -> "33"
 
 bgColorCode :: Color -> Text
-bgColorCode Default = "49"
-bgColorCode (Custom n) = "48;5;" <> T.pack (show n)
-bgColorCode Black = "40"
-bgColorCode Blue = "44"
-bgColorCode Cyan = "46"
-bgColorCode DarkGray = "100"
-bgColorCode Green = "42"
-bgColorCode LightBlue = "104"
-bgColorCode LightCyan = "106"
-bgColorCode LightGray = "100"
-bgColorCode LightGreen = "102"
-bgColorCode LightMagenta = "105"
-bgColorCode LightRed = "101"
-bgColorCode LightYellow = "103"
-bgColorCode Magenta = "45"
-bgColorCode Red = "41"
-bgColorCode White = "107"
-bgColorCode Yellow = "103"
+bgColorCode = \case
+  Default -> "49"
+  Custom n -> "48;5;" <> pack (show n)
+  Black -> "40"
+  Blue -> "44"
+  Cyan -> "46"
+  DarkGray -> "100"
+  Green -> "42"
+  LightBlue -> "104"
+  LightCyan -> "106"
+  LightGray -> "100"
+  LightGreen -> "102"
+  LightMagenta -> "105"
+  LightRed -> "101"
+  LightYellow -> "103"
+  Magenta -> "45"
+  Red -> "41"
+  White -> "107"
+  Yellow -> "103"

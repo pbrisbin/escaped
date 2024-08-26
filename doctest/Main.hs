@@ -1,6 +1,15 @@
 module Main (main) where
 
+import Prelude
+
 import Test.DocTest
 
 main :: IO ()
-main = doctest ["-XOverloadedStrings", "src"]
+main =
+  doctest
+    [ "-XDerivingStrategies"
+    , "-XImportQualifiedPost"
+    , "-XLambdaCase"
+    , "-XOverloadedStrings"
+    , "src"
+    ]
