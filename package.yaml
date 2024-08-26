@@ -10,11 +10,8 @@ license: MIT
 github: pbrisbin/escaped
 
 extra-doc-files:
-  - CHANGELOG.md
   - README.md
-
-dependencies:
-  - base >= 4 && < 5
+  - CHANGELOG.md
 
 ghc-options:
   - -fignore-optim-changes
@@ -23,11 +20,31 @@ ghc-options:
   - -Wno-all-missed-specialisations
   - -Wno-missed-specialisations
   - -Wno-missing-import-lists
-  - -Wno-missing-kind-signatures
   - -Wno-missing-local-signatures
   - -Wno-missing-safe-haskell-mode
+  - -Wno-monomorphism-restriction
   - -Wno-prepositive-qualified-module
+  - -Wno-safe
   - -Wno-unsafe
+
+when:
+  - condition: "impl(ghc >= 9.8)"
+    ghc-options:
+      - -Wno-missing-role-annotations
+      - -Wno-missing-poly-kind-signatures
+  - condition: "impl(ghc >= 9.2)"
+    ghc-options:
+      - -Wno-missing-kind-signatures
+
+dependencies:
+  - base >= 4 && < 5
+
+default-extensions:
+  - DerivingStrategies
+  - ImportQualifiedPost
+  - LambdaCase
+  - NoImplicitPrelude
+  - OverloadedStrings
 
 library:
   source-dirs: src
