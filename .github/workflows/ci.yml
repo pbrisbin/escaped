@@ -21,6 +21,7 @@ jobs:
       stack-yamls: ${{ steps.generate.outputs.stack-yamls }}
 
   test:
+    needs: generate
     runs-on: ubuntu-latest
 
     strategy:
