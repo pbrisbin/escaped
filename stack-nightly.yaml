@@ -1,0 +1,3 @@
+resolver: nightly-2024-08-26
+extra-deps:
+  - quickcheck-properties-0.1
