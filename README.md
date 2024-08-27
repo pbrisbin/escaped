@@ -91,8 +91,6 @@ stack setup
 stack build --pedantic test
 ```
 
-See also the [`Makefile`](./Makefile).
-
 ---
 
 [CHANGELOG](./CHANGELOG.md) | [LICENSE](./LICENSE)
