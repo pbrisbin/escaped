@@ -14,7 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: find -maxdepth 1 -name 'stack*.yaml' -printf '"%f"\n' | sort -V | jq --slurp
       - id: generate
         uses: freckle/stack-action/generate-matrix@v5
     outputs:
