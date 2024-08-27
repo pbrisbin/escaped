@@ -31,9 +31,24 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: freckle/stack-action@v5
+      - id: stack
+        uses: freckle/stack-action@v5
         with:
-          stack-yaml: ${{ matrix.stack-yaml }}
+          stack-arguments: --coverage
+          compiler-tools: hpc-lcov
+        env:
+          STACK_YAML: ${{ matrix.stack-yaml }}
+
+      - if: ${{ matrix.stack-yaml == 'stack.yaml' }}
+        run: |
+          tix='${{ steps.stack.outputs.local-hpc-root }}/combined/all/all.tix'
+          stack exec -- hpc-lcov --file "$tix"
+
+      - if: ${{ matrix.stack-yaml == 'stack.yaml' }}
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   lint:
     runs-on: ubuntu-latest
