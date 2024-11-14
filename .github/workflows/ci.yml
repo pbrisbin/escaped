@@ -44,7 +44,7 @@ jobs:
           stack exec -- hpc-lcov --file "$tix"
 
       - if: ${{ matrix.stack-yaml == 'stack.yaml' }}
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           files: ./lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
